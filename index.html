@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>S2Hand Bazaar — Bihar ka apna second-hand bazaar | Bina dalal, bina commission</title>
+<meta name="description" content="S2Hand Bazaar — Bihar ka apna second-hand marketplace. Mobile, Laptop, TV, AC, Fan, Bike, Books, Furniture becho ya kharido. Direct buyer-seller call. All 38 Bihar districts." />
+<meta name="keywords" content="second hand bihar, bihar bazaar, purana mobile bihar, S2Hand Bazaar" />
+<meta name="robots" content="index, follow" />
+<meta name="theme-color" content="#FF9933" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23FF9933'/><text x='50' y='68' font-size='55' font-weight='bold' text-anchor='middle' fill='white'>S2</text></svg>" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  h1,h2,h3,h4,.brand { font-family: 'Poppins', sans-serif; }
+  body { background: #f8fafc; color: #0f172a; transition: background .3s, color .3s; }
+  body.dark { background: #0b1220; color: #e2e8f0; }
+  .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.4); }
+  body.dark .glass { background: rgba(17,24,39,0.6); border: 1px solid rgba(255,255,255,0.08); }
+  .gradient-text { background: linear-gradient(90deg,#FF9933,#138808); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .btn-primary { background: linear-gradient(90deg,#FF9933,#FF7A00); color: white; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(255,153,51,0.4); }
+  .card { transition: all .3s ease; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+  .fade-in { animation: fadeIn .5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1;transform:translateY(0);} }
+  .chip { transition: all .2s; cursor: pointer; }
+  .chip.active { background: linear-gradient(90deg,#FF9933,#138808); color: white; }
+  .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  #postForm input, #postForm select, #postForm textarea {
+    background: #ffffff !important; border: 2px solid #cbd5e1 !important;
+    color: #0f172a !important; font-weight: 500; width: 100%;
+    padding: 12px 16px; border-radius: 12px; outline: none; font-size: 15px;
+  }
+  #postForm input::placeholder, #postForm textarea::placeholder { color: #94a3b8; font-weight: 400; }
+  #postForm input:focus, #postForm select:focus, #postForm textarea:focus {
+    border-color: #FF9933 !important; box-shadow: 0 0 0 3px rgba(255,153,51,0.18);
+  }
+  #postForm label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #334155; }
+  body.dark #postForm input, body.dark #postForm select, body.dark #postForm textarea {
+    background: #1e293b !important; border: 2px solid #334155 !important; color: #e2e8f0 !important;
+  }
+  body.dark #postForm label { color: #cbd5e1; }
+
+  #filterDistrict, #filterCategory, #filterBrand, #filterSort, #heroDistrict {
+    background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a;
+  }
+  body.dark #filterDistrict, body.dark #filterCategory, body.dark #filterBrand,
+  body.dark #filterSort, body.dark #heroDistrict {
+    background: #1e293b; border: 1px solid #334155; color: #e2e8f0;
+  }
+  select option { color: #0f172a; background: #ffffff; }
+  body.dark select option { color: #e2e8f0; background: #1e293b; }
+
+  /* Photo upload */
+  .upload-box { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: #f8fafc; transition: all .2s; }
+  .upload-box:hover { border-color: #FF9933; background: #fff7ed; }
+  body.dark .upload-box { background: #1e293b; border-color: #334155; }
+  body.dark .upload-box:hover { border-color: #FF9933; background: #1a2438; }
+  .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; border: 2px solid #e2e8f0; }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-thumb .remove { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; background: rgba(220,38,38,0.95); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; font-weight: bold; }
+
+  /* Sold stamp */
+  .sold-stamp {
+    position: absolute; top: 12px; left: 12px;
+    background: #dc2626; color: white;
+    padding: 4px 12px; border-radius: 6px;
+    font-weight: 800; font-size: 13px; letter-spacing: 1px;
+    transform: rotate(-8deg);
+    box-shadow: 0 4px 12px rgba(220,38,38,0.5);
+    z-index: 2;
+  }
+  .sold-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); z-index: 1; }
+  .listing-sold { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<nav class="glass sticky top-0 z-50 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white" style="background:linear-gradient(135deg,#FF9933,#138808)">S2</div>
+      <span class="brand text-xl font-bold">S2Hand <span class="gradient-text">Bazaar</span></span>
+    </a>
+    <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+      <a href="#listings" class="hover:text-orange-500">Browse</a>
+      <a href="#post" class="hover:text-orange-500">Post Ad</a>
+      <a href="#safety" class="hover:text-orange-500">Safety Tips</a>
+      <a href="#about" class="hover:text-orange-500">About</a>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="themeBtn" class="w-9 h-9 rounded-lg glass flex items-center justify-center">🌙</button>
+      <a href="#post" class="btn-primary px-4 py-2 rounded-lg text-sm font-semibold hidden sm:inline-block">+ Post Free Ad</a>
+    </div>
+  </div>
+</nav>
+
+<header class="relative overflow-hidden">
+  <div class="absolute inset-0 -z-10" style="background: radial-gradient(1200px 400px at 20% 0%, rgba(255,153,51,0.15), transparent), radial-gradient(1000px 400px at 80% 20%, rgba(19,136,8,0.15), transparent);"></div>
+  <div class="max-w-7xl mx-auto px-4 py-16 md:py-24 text-center">
+    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold glass mb-4">🇮🇳 Bihar ka apna bazaar · All 38 Districts</span>
+    <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">Purani cheez becho, <span class="gradient-text">seedha buyer se baat karo</span></h1>
+    <p class="mt-4 text-lg md:text-xl opacity-80 max-w-2xl mx-auto">Bina dalal, bina commission, bina bot. Seller aur buyer direct call karke deal crack karein. 100% Bihar.</p>
+    <div class="mt-8 max-w-3xl mx-auto glass rounded-2xl p-2 flex flex-col md:flex-row gap-2 shadow-lg">
+      <input id="searchInput" type="text" placeholder="Kya dhundh rahe ho? Jaise: iPhone, TV, AC, Bike..." class="flex-1 px-4 py-3 rounded-xl outline-none text-base" />
+      <select id="heroDistrict" class="px-4 py-3 rounded-xl outline-none text-base">
+        <option value="">Sabhi Jile</option>
+        <option>Araria</option><option>Arwal</option><option>Aurangabad</option><option>Banka</option><option>Begusarai</option><option>Bhagalpur</option><option>Bhojpur</option><option>Buxar</option><option>Darbhanga</option><option>East Champaran</option><option>Gaya</option><option>Gopalganj</option><option>Jamui</option><option>Jehanabad</option><option>Kaimur</option><option>Katihar</option><option>Khagaria</option><option>Kishanganj</option><option>Lakhisarai</option><option>Madhepura</option><option>Madhubani</option><option>Munger</option><option>Muzaffarpur</option><option>Nalanda</option><option>Nawada</option><option>Patna</option><option>Purnia</option><option>Rohtas</option><option>Saharsa</option><option>Samastipur</option><option>Saran</option><option>Sheikhpura</option><option>Sheohar</option><option>Sitamarhi</option><option>Siwan</option><option>Supaul</option><option>Vaishali</option><option>West Champaran</option>
+      </select>
+      <button onclick="applyHeroSearch()" class="btn-primary px-6 py-3 rounded-xl font-semibold">🔍 Search</button>
+    </div>
+    <div class="mt-6 flex flex-wrap gap-3 justify-center text-xs">
+      <span class="glass px-3 py-1.5 rounded-full">✅ No Commission</span>
+      <span class="glass px-3 py-1.5 rounded-full">✅ No Broker</span>
+      <span class="glass px-3 py-1.5 rounded-full">✅ Direct Deal</span>
+      <span class="glass px-3 py-1.5 rounded-full">✅ 100% Bihar</span>
+    </div>
+  </div>
+</header>
+
+<section class="max-w-7xl mx-auto px-4 py-8">
+  <h2 class="text-2xl md:text-3xl font-bold mb-4">Categories</h2>
+  <div id="categoryGrid" class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3"></div>
+</section>
+
+<section id="listings" class="max-w-7xl mx-auto px-4 py-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+    <h2 class="text-2xl md:text-3xl font-bold">Latest Listings</h2>
+    <div class="flex gap-2 flex-wrap">
+      <select id="filterDistrict" class="px-3 py-2 rounded-lg text-sm">
+        <option value="">Sabhi Jile</option>
+        <option>Araria</option><option>Arwal</option><option>Aurangabad</option><option>Banka</option><option>Begusarai</option><option>Bhagalpur</option><option>Bhojpur</option><option>Buxar</option><option>Darbhanga</option><option>East Champaran</option><option>Gaya</option><option>Gopalganj</option><option>Jamui</option><option>Jehanabad</option><option>Kaimur</option><option>Katihar</option><option>Khagaria</option><option>Kishanganj</option><option>Lakhisarai</option><option>Madhepura</option><option>Madhubani</option><option>Munger</option><option>Muzaffarpur</option><option>Nalanda</option><option>Nawada</option><option>Patna</option><option>Purnia</option><option>Rohtas</option><option>Saharsa</option><option>Samastipur</option><option>Saran</option><option>Sheikhpura</option><option>Sheohar</option><option>Sitamarhi</option><option>Siwan</option><option>Supaul</option><option>Vaishali</option><option>West Champaran</option>
+      </select>
+      <select id="filterCategory" class="px-3 py-2 rounded-lg text-sm">
+        <option value="">Sabhi Category</option>
+        <option value="mobile">📱 Mobile</option>
+        <option value="laptop">💻 Laptop</option>
+        <option value="tv">📺 TV</option>
+        <option value="ac">❄️ AC</option>
+        <option value="fan">🌀 Fan</option>
+        <option value="bike">🏍️ Bike</option>
+        <option value="books">📚 Books</option>
+        <option value="furniture">🛋️ Furniture</option>
+      </select>
+      <select id="filterBrand" class="px-3 py-2 rounded-lg text-sm"><option value="">Sabhi Brand</option></select>
+      <select id="filterSold" class="px-3 py-2 rounded-lg text-sm">
+        <option value="hide">Sirf Available</option>
+        <option value="show">Sold bhi dikhao</option>
+      </select>
+      <select id="filterSort" class="px-3 py-2 rounded-lg text-sm">
+        <option value="new">Naye Pehle</option>
+        <option value="low">Price: Kam → Zyada</option>
+        <option value="high">Price: Zyada → Kam</option>
+      </select>
+    </div>
+  </div>
+  <div id="listingGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+  <p id="emptyMsg" class="text-center py-16 opacity-70 hidden">Koi listing nahi mili. Pehli listing tum banao! 👆</p>
+</section>
+
+<section id="post" class="max-w-3xl mx-auto px-4 py-12">
+  <div class="glass rounded-3xl p-6 md:p-8 shadow-xl">
+    <h2 class="text-3xl font-bold mb-1">Free Ad Post Karo</h2>
+    <p class="opacity-70 mb-6 text-sm">Bina kisi fees, bina commission. Tumhara number sirf tab dikhega jab buyer "Show Number" pe click kare.</p>
+
+    <form id="postForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div class="md:col-span-2">
+        <label>📂 Category chuno *</label>
+        <select required name="category" id="postCategory" onchange="onCategoryChange()">
+          <option value="">-- Category chuno --</option>
+          <option value="mobile">📱 Mobile</option>
+          <option value="laptop">💻 Laptop</option>
+          <option value="electronic">🔌 Electronic Device</option>
+          <option value="bike">🏍️ Bike</option>
+          <option value="books">📚 Books</option>
+          <option value="furniture">🛋️ Furniture</option>
+        </select>
+      </div>
+
+      <div id="subCategoryField" class="md:col-span-2" style="display:none;">
+        <label>🔍 Kaunsa Electronic Device? *</label>
+        <select name="subcategory" id="postSubCategory" onchange="onSubCategoryChange()">
+          <option value="">-- Sub-category chuno --</option>
+          <option value="tv">📺 TV</option>
+          <option value="ac">❄️ AC</option>
+          <option value="fan">🌀 Fan</option>
+          <option value="other-electronic">⚡ Other Electronic</option>
+        </select>
+      </div>
+
+      <div id="brandField" class="md:col-span-2" style="display:none;">
+        <label>🏷️ Brand chuno *</label>
+        <select name="brand" id="postBrand"><option value="">-- Brand chuno --</option></select>
+      </div>
+
+      <div id="modelField" class="md:col-span-2" style="display:none;">
+        <label>📝 Model / Variant (optional)</label>
+        <input name="model" id="postModel" placeholder="jaise: 13 Pro, 1.5 Ton 5 Star" />
+      </div>
+
+      <div class="md:col-span-2">
+        <label>📌 Ad ka Title *</label>
+        <input required name="title" placeholder="jaise: iPhone 13 Pro 128GB" />
+      </div>
+
+      <div>
+        <label>✨ Condition *</label>
+        <select required name="condition">
+          <option value="Brand New">Brand New</option>
+          <option value="Like New">Like New</option>
+          <option value="Used">Used</option>
+          <option value="Refurbished">Refurbished</option>
+          <option value="For Parts">For Parts</option>
+        </select>
+      </div>
+
+      <div>
+        <label>💰 Price (₹) *</label>
+        <input required name="price" type="number" min="0" placeholder="jaise: 25000" />
+      </div>
+
+      <div>
+        <label>⏳ Kitna purana? (optional)</label>
+        <input name="age" placeholder="jaise: 1 saal, 6 mahine" />
+      </div>
+
+      <div>
+        <label>🛡️ Warranty? (optional)</label>
+        <select name="warranty">
+          <option value="">-- Chuno --</option>
+          <option value="Warranty Available">Warranty Available</option>
+          <option value="Warranty Expired">Warranty Expired</option>
+          <option value="No Warranty">No Warranty</option>
+        </select>
+      </div>
+
+      <div>
+        <label>📍 Jila chuno *</label>
+        <select required name="district" id="postDistrict">
+          <option value="">-- Jila chuno --</option>
+          <option>Araria</option><option>Arwal</option><option>Aurangabad</option><option>Banka</option><option>Begusarai</option><option>Bhagalpur</option><option>Bhojpur</option><option>Buxar</option><option>Darbhanga</option><option>East Champaran</option><option>Gaya</option><option>Gopalganj</option><option>Jamui</option><option>Jehanabad</option><option>Kaimur</option><option>Katihar</option><option>Khagaria</option><option>Kishanganj</option><option>Lakhisarai</option><option>Madhepura</option><option>Madhubani</option><option>Munger</option><option>Muzaffarpur</option><option>Nalanda</option><option>Nawada</option><option>Patna</option><option>Purnia</option><option>Rohtas</option><option>Saharsa</option><option>Samastipur</option><option>Saran</option><option>Sheikhpura</option><option>Sheohar</option><option>Sitamarhi</option><option>Siwan</option><option>Supaul</option><option>Vaishali</option><option>West Champaran</option>
+        </select>
+      </div>
+
+      <div>
+        <label>🏘️ Area / Mohalla *</label>
+        <input required name="area" placeholder="jaise: Kankarbagh, Boring Road" />
+      </div>
+
+      <div>
+        <label>👤 Tumhara Naam *</label>
+        <input required name="seller" placeholder="jaise: Rahul Kumar" />
+      </div>
+
+      <div>
+        <label>📱 Mobile Number *</label>
+        <input required name="phone" pattern="[6-9][0-9]{9}" maxlength="10" placeholder="10-digit number" />
+      </div>
+
+      <div class="md:col-span-2">
+        <label>📝 Detail me likho *</label>
+        <textarea required name="desc" rows="4" placeholder="Condition, kitna purana, kya kya milega..."></textarea>
+      </div>
+
+      <div class="md:col-span-2">
+        <label>📷 Photos (max 8) *</label>
+        <div class="upload-box" onclick="document.getElementById('photoInput').click()">
+          <div class="text-4xl mb-2">📸</div>
+          <p class="font-semibold text-sm">Click karo photo chunne ke liye</p>
+          <p class="text-xs opacity-60 mt-1">Max 8 photos · JPG / PNG · Auto-compress hoga</p>
+        </div>
+        <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="onPhotosSelected(event)" />
+        <div id="photoPreview" class="grid grid-cols-4 gap-2 mt-3"></div>
+        <p id="photoCount" class="text-xs opacity-70 mt-2">0 / 8 photos selected</p>
+      </div>
+
+      <button type="submit" class="md:col-span-2 btn-primary py-3 rounded-xl font-bold text-lg">🚀 Publish Ad</button>
+    </form>
+    <p class="text-xs opacity-60 mt-3">Note: Ad turant live hoga. Apni listing ko "Mark as Sold" ya "Delete" kar sakte ho (phone number verify karke).</p>
+  </div>
+</section>
+
+<section id="safety" class="max-w-5xl mx-auto px-4 py-12">
+  <h2 class="text-3xl font-bold mb-6 text-center">🛡️ Safety Tips</h2>
+  <div class="grid md:grid-cols-3 gap-5">
+    <div class="glass p-6 rounded-2xl"><div class="text-3xl mb-2">🤝</div><h3 class="font-bold text-lg">Public jagah milein</h3><p class="text-sm opacity-80 mt-1">Market, thana ke paas ya bheed wali jagah deal karein.</p></div>
+    <div class="glass p-6 rounded-2xl"><div class="text-3xl mb-2">💵</div><h3 class="font-bold text-lg">Cash ya UPI verify karke</h3><p class="text-sm opacity-80 mt-1">Paise advance mat bhejo. Product dekho, phir payment karo.</p></div>
+    <div class="glass p-6 rounded-2xl"><div class="text-3xl mb-2">🚩</div><h3 class="font-bold text-lg">Report karo</h3><p class="text-sm opacity-80 mt-1">Fraud lage to Report button dabao.</p></div>
+  </div>
+</section>
+
+<section id="about" class="max-w-4xl mx-auto px-4 py-12 text-center">
+  <h2 class="text-3xl font-bold mb-4">S2Hand Bazaar ke baare me</h2>
+  <p class="opacity-80 max-w-2xl mx-auto">Bihar ka apna second-hand marketplace. Koi dalal nahi, koi commission nahi, koi bot nahi. Direct buyer-seller deal. All 38 Bihar districts supported.</p>
+</section>
+
+<footer class="border-t border-gray-200 dark:border-gray-800 mt-12">
+  <div class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-3 gap-6 text-sm">
+    <div>
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white" style="background:linear-gradient(135deg,#FF9933,#138808)">S2</div>
+        <span class="brand font-bold">S2Hand Bazaar</span>
+      </div>
+      <p class="opacity-70">Bihar ka apna second-hand bazaar. Bina dalal, bina commission.</p>
+    </div>
+    <div>
+      <h4 class="font-semibold mb-2">Quick Links</h4>
+      <ul class="space-y-1 opacity-80">
+        <li><a href="#listings">Browse</a></li>
+        <li><a href="#post">Post Ad</a></li>
+        <li><a href="#safety">Safety Tips</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="font-semibold mb-2">Contact</h4>
+      <p class="opacity-80">📧 rahulji423262@gmail.com</p>
+      <p class="opacity-80">📞 +91 9120987048</p>
+      <p class="opacity-60 text-xs mt-3">© 2026 S2Hand Bazaar. Made in Bihar ❤️</p>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/919120987048" target="_blank" class="fixed bottom-5 right-5 z-40 w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl shadow-2xl" style="background:#25D366">💬</a>
+
+<div id="galleryModal" style="display:none; position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.92); align-items:center; justify-content:center;">
+  <button onclick="closeGallery()" style="position:absolute; top:20px; right:24px; background:rgba(255,255,255,0.15); color:white; border:none; width:44px; height:44px; border-radius:50%; font-size:24px; cursor:pointer;">✕</button>
+  <button onclick="galleryNav(-1)" style="position:absolute; left:16px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); color:white; border:none; width:52px; height:52px; border-radius:50%; font-size:26px; cursor:pointer;">‹</button>
+  <button onclick="galleryNav(1)" style="position:absolute; right:16px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); color:white; border:none; width:52px; height:52px; border-radius:50%; font-size:26px; cursor:pointer;">›</button>
+  <img id="galleryImg" src="" style="max-width:90vw; max-height:85vh; border-radius:12px;" />
+  <p id="galleryCount" style="position:absolute; bottom:24px; left:50%; transform:translateX(-50%); color:white; font-size:14px; opacity:0.8;"></p>
+</div>
+
+<script>
+const BRANDS = {
+  mobile: ["Apple","Samsung","Xiaomi / Redmi","Realme","Vivo","Oppo","OnePlus","Nothing","Motorola","Google Pixel","Honor","Infinix","Tecno","iQOO","Poco","Asus","Nokia","Lava","Micromax","Karbonn","Sony","LG","HTC","Jio","Other"],
+  laptop: ["HP","Dell","Lenovo","Asus","Acer","Apple MacBook","MSI","Microsoft Surface","Samsung","LG","Toshiba","Sony VAIO","Xiaomi","Huawei","Infinix","Other"],
+  tv: ["Samsung","LG","Sony","Mi / Xiaomi","OnePlus","TCL","Panasonic","Philips","Haier","Vu","iFFALCON","Realme","Toshiba","Sharp","BPL","Onida","Micromax","Thomson","Kodak","Other"],
+  ac: ["LG","Samsung","Voltas","Blue Star","Daikin","Hitachi","Panasonic","Carrier","Haier","Godrej","Whirlpool","IFB","Lloyd","O General","Mitsubishi","Croma","Bajaj","Orient","Other"],
+  fan: ["Havells","Bajaj","Orient","Crompton","Usha","Atomberg","Polycab","Anchor","Khaitan","Other"],
+  "other-electronic": ["Other"],
+  bike: ["Hero","Honda","Bajaj","TVS","Royal Enfield","Yamaha","Suzuki","KTM","Jawa","Yezdi","Mahindra","Kawasaki","Harley-Davidson","BMW Motorrad","Triumph","Benelli","Ola Electric","Ather","TVS iQube","Bajaj Chetak","Hero Electric","Ampere","Revolt","Other"],
+  books: ["NCERT","RS Aggarwal","RD Sharma","HC Verma","Lakhmir Singh","S Chand","Arihant","Disha","Oswaal","MTG","Pearson","Oxford","Cambridge","Penguin","HarperCollins","Competition Exam","Novel / Fiction","Other"],
+  furniture: ["Godrej","Nilkamal","Wakefit","Urban Ladder","Pepperfry","Durian","Royaloak","Nesta","Zuari","Home Centre","IKEA","Local Carpenter","Other"]
+};
+
+const STORAGE_KEY = "s2hand_listings_v11";
+const THEME_KEY = "s2hand_theme";
+const MAX_PHOTOS = 8;
+
+var selectedPhotos = [];
+
+function compressImage(file, maxWidth, quality){
+  return new Promise(function(resolve){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var w = img.width, h = img.height;
+        if(w > maxWidth){ h = Math.round(h * maxWidth / w); w = maxWidth; }
+        var canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function onPhotosSelected(e){
+  var files = Array.from(e.target.files);
+  var remaining = MAX_PHOTOS - selectedPhotos.length;
+  if(remaining <= 0){ alert("Max 8 photos hi allowed hain."); e.target.value = ""; return; }
+  if(files.length > remaining){ alert("Sirf " + remaining + " aur photo add kar sakte ho (max 8)."); files = files.slice(0, remaining); }
+  for(var i=0; i<files.length; i++){
+    try { var compressed = await compressImage(files[i], 900, 0.7); selectedPhotos.push(compressed); }
+    catch(err){ console.log("Image skip:", err); }
+  }
+  e.target.value = "";
+  renderPhotoPreview();
+}
+
+function renderPhotoPreview(){
+  var preview = document.getElementById("photoPreview");
+  preview.innerHTML = selectedPhotos.map(function(src, idx){
+    return '<div class="photo-thumb"><img src="'+src+'" alt="photo"><div class="remove" onclick="removePhoto('+idx+')">✕</div></div>';
+  }).join("");
+  document.getElementById("photoCount").innerText = selectedPhotos.length + " / " + MAX_PHOTOS + " photos selected";
+}
+
+function removePhoto(idx){ selectedPhotos.splice(idx, 1); renderPhotoPreview(); }
+
+function getListings() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || seed(); }
+  catch(e){ return seed(); }
+}
+function saveListings(arr){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+  catch(e){ alert("Storage full! Purani listings delete karo ya kam photo daalo."); }
+}
+
+function seed(){
+  const now = Date.now();
+  const samples = [
+    { title:"iPhone 13 Pro 128GB", brand:"Apple", model:"13 Pro", category:"mobile", district:"Patna", area:"Kankarbagh", price:48000, condition:"Like New", age:"1 saal", warranty:"Warranty Expired", seller:"Ravi Kumar", phone:"9876543210", desc:"Battery health 91%. Box + charger available.", images:["https://images.unsplash.com/photo-1592286927505-1def25115558?w=600"], sold:false },
+    { title:"HP Pavilion i5", brand:"HP", model:"Pavilion 15", category:"laptop", district:"Gaya", area:"Civil Lines", price:28000, condition:"Like New", age:"6 mahine", warranty:"Warranty Available", seller:"Priya Sharma", phone:"9898989898", desc:"Warranty bachi hai. Charger + bag free.", images:["https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600"], sold:false },
+    { title:"Samsung 43 inch Smart TV", brand:"Samsung", model:"Crystal 4K 43", category:"tv", district:"Darbhanga", area:"Laheriasarai", price:18500, condition:"Used", age:"1 saal", warranty:"Warranty Expired", seller:"Neha Verma", phone:"9798765432", desc:"Remote + bill available.", images:["https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600"], sold:false },
+    { title:"LG 1.5 Ton Split AC", brand:"LG", model:"1.5 Ton 5 Star", category:"ac", district:"Patna", area:"Boring Road", price:24000, condition:"Used", age:"2 saal", warranty:"Warranty Expired", seller:"Vikash Kumar", phone:"9811122233", desc:"Cooling excellent.", images:["https://images.unsplash.com/photo-1631545806609-25fb8c17b4c5?w=600"], sold:false },
+    { title:"Havells Ceiling Fan", brand:"Havells", model:"Stealth Air", category:"fan", district:"Muzaffarpur", area:"Mithanpura", price:1800, condition:"Used", age:"1 saal", warranty:"No Warranty", seller:"Sanjay Kumar", phone:"9812340000", desc:"Silent fan, 5 star rating.", images:["https://images.unsplash.com/photo-1565636192335-b7c6e0c5a3c5?w=600"], sold:false },
+    { title:"Honda Activa 6G", brand:"Honda", model:"Activa 6G", category:"bike", district:"Purnia", area:"Line Bazar", price:62000, condition:"Used", age:"3 saal", warranty:"No Warranty", seller:"Md Imran", phone:"9812312345", desc:"15,000 km. Regular servicing.", images:["https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600"], sold:false },
+    { title:"RS Aggarwal Class 10", brand:"RS Aggarwal", model:"Class 10", category:"books", district:"Gaya", area:"Civil Lines", price:250, condition:"Used", age:"1 saal", warranty:"No Warranty", seller:"Anjali Kumari", phone:"9834567890", desc:"Good condition.", images:["https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600"], sold:false },
+    { title:"3-Seater Sofa Set", brand:"Godrej", model:"3-Seater", category:"furniture", district:"Bhagalpur", area:"Adampur", price:12000, condition:"Used", age:"3 saal", warranty:"No Warranty", seller:"Suresh Yadav", phone:"9765432109", desc:"Teak wood frame.", images:["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600"], sold:false }
+  ];
+  return samples.map(function(s,i){ var o = Object.assign({}, s); o.id = "s"+i; o.createdAt = now - i*3600000; return o; });
+}
+
+function fillBrandSelect(el, key){
+  if(!el) return;
+  if(BRANDS[key]){
+    el.innerHTML = '<option value="">-- Brand chuno --</option>' + BRANDS[key].map(function(b){return '<option value="'+b+'">'+b+'</option>';}).join("");
+  } else {
+    el.innerHTML = '<option value="">-- Brand chuno --</option>';
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  renderCategories();
+  renderFilterBrands();
+  renderListings();
+  initTheme();
+});
+
+function onCategoryChange(){
+  var cat = document.getElementById("postCategory").value;
+  var subField = document.getElementById("subCategoryField");
+  var brandField = document.getElementById("brandField");
+  var modelField = document.getElementById("modelField");
+  var brandSel = document.getElementById("postBrand");
+  subField.style.display = "none";
+  brandField.style.display = "none";
+  modelField.style.display = "none";
+  if(!cat) return;
+  if(cat === "electronic"){
+    subField.style.display = "block";
+    brandSel.innerHTML = '<option value="">-- Pehle sub-category chuno --</option>';
+  } else if(BRANDS[cat]){
+    brandField.style.display = "block";
+    modelField.style.display = "block";
+    fillBrandSelect(brandSel, cat);
+  }
+}
+
+function onSubCategoryChange(){
+  var sub = document.getElementById("postSubCategory").value;
+  var brandField = document.getElementById("brandField");
+  var modelField = document.getElementById("modelField");
+  if(!sub){ brandField.style.display = "none"; modelField.style.display = "none"; return; }
+  brandField.style.display = "block";
+  modelField.style.display = "block";
+  fillBrandSelect(document.getElementById("postBrand"), sub);
+}
+
+var activeCat = "";
+function renderCategories(){
+  var grid = document.getElementById("categoryGrid");
+  if(!grid) return;
+  var cats = [
+    { slug:"", name:"All", icon:"🔥" },
+    { slug:"mobile", name:"Mobile", icon:"📱" },
+    { slug:"laptop", name:"Laptop", icon:"💻" },
+    { slug:"tv", name:"TV", icon:"📺" },
+    { slug:"ac", name:"AC", icon:"❄️" },
+    { slug:"fan", name:"Fan", icon:"🌀" },
+    { slug:"bike", name:"Bike", icon:"🏍️" },
+    { slug:"books", name:"Books", icon:"📚" },
+    { slug:"furniture", name:"Furniture", icon:"🛋️" }
+  ];
+  grid.innerHTML = cats.map(function(c){
+    return '<div class="chip glass card p-3 rounded-2xl text-center '+(activeCat===c.slug?'active':'')+'" data-cat="'+c.slug+'">'+
+      '<div class="text-2xl mb-1">'+c.icon+'</div><div class="text-xs font-semibold">'+c.name+'</div></div>';
+  }).join("");
+  var chips = grid.querySelectorAll(".chip");
+  for(var i=0;i<chips.length;i++){
+    chips[i].onclick = function(){
+      activeCat = this.getAttribute("data-cat");
+      document.getElementById("filterCategory").value = activeCat;
+      renderFilterBrands();
+      renderCategories();
+      renderListings();
+      document.getElementById("listings").scrollIntoView({behavior:"smooth"});
+    };
+  }
+}
+
+function renderFilterBrands(){
+  var cat = document.getElementById("filterCategory").value;
+  var brandSel = document.getElementById("filterBrand");
+  if(!brandSel) return;
+  if(cat && BRANDS[cat]){
+    brandSel.innerHTML = '<option value="">Sabhi Brand</option>' + BRANDS[cat].map(function(b){return '<option value="'+b+'">'+b+'</option>';}).join("");
+  } else {
+    var all = {};
+    for(var k in BRANDS){ BRANDS[k].forEach(function(b){ all[b]=1; }); }
+    var arr = Object.keys(all).sort();
+    brandSel.innerHTML = '<option value="">Sabhi Brand</option>' + arr.map(function(b){return '<option value="'+b+'">'+b+'</option>';}).join("");
+  }
+}
+
+function renderListings(){
+  var keyword = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+  var dist = document.getElementById("filterDistrict").value;
+  var cat = document.getElementById("filterCategory").value;
+  var brandF = document.getElementById("filterBrand").value;
+  var sort = document.getElementById("filterSort").value;
+  var soldFilter = document.getElementById("filterSold").value;
+
+  var list = getListings();
+  if(keyword) list = list.filter(function(l){ return (l.title+" "+(l.brand||"")+" "+(l.model||"")+" "+(l.desc||"")).toLowerCase().indexOf(keyword) >= 0; });
+  if(dist) list = list.filter(function(l){ return l.district === dist; });
+  if(cat) list = list.filter(function(l){ return l.category === cat; });
+  if(brandF) list = list.filter(function(l){ return (l.brand||"") === brandF; });
+  if(soldFilter === "hide") list = list.filter(function(l){ return !l.sold; });
+  if(sort === "low") list.sort(function(a,b){return a.price-b.price;});
+  else if(sort === "high") list.sort(function(a,b){return b.price-a.price;});
+  else list.sort(function(a,b){return b.createdAt-a.createdAt;});
+
+  var grid = document.getElementById("listingGrid");
+  var empty = document.getElementById("emptyMsg");
+  if(list.length === 0){ grid.innerHTML=""; empty.classList.remove("hidden"); return; }
+  empty.classList.add("hidden");
+
+  var ICONS = { mobile:"📱", laptop:"💻", tv:"📺", ac:"❄️", fan:"🌀", "other-electronic":"⚡", electronic:"🔌", bike:"🏍️", books:"📚", furniture:"🛋️" };
+
+  grid.innerHTML = list.map(function(l, idx){
+    var icon = ICONS[l.category] || "📦";
+    var waText = encodeURIComponent("Hi, maine S2Hand Bazaar pe tumhara ad dekha: "+l.title+" (Rs "+l.price+")");
+    var displayTitle = l.brand ? (l.brand + (l.model?' '+l.model:'')) : l.title;
+    var imgs = l.images && l.images.length ? l.images : [];
+    var firstImg = imgs.length ? '<img src="'+imgs[0]+'" alt="'+escapeHtml(l.title)+'" class="w-full h-full object-cover" loading="lazy">' : '<div class="w-full h-full flex items-center justify-center text-5xl">'+icon+'</div>';
+    var photoBadge = imgs.length > 1 ? '<span style="position:absolute; top:8px; right:8px; background:rgba(0,0,0,0.7); color:white; font-size:11px; padding:3px 8px; border-radius:12px; z-index:3;">📷 '+imgs.length+'</span>' : '';
+    var soldBadge = l.sold ? '<div class="sold-stamp">SOLD</div><div class="sold-overlay"></div>' : '';
+    var cardClass = 'card glass rounded-2xl overflow-hidden fade-in flex flex-col' + (l.sold ? ' listing-sold' : '');
+    return '<div class="'+cardClass+'">'+
+      '<div class="aspect-[4/3] bg-gray-200 dark:bg-gray-800 overflow-hidden" style="position:relative; cursor:'+(imgs.length?'pointer':'default')+'" onclick="'+(imgs.length?'openGalleryByIdx('+idx+')':'')+'">'+
+        firstImg + photoBadge + soldBadge +
+      '</div>'+
+      '<div class="p-4 flex-1 flex flex-col">'+
+        '<div class="flex items-start justify-between gap-2">'+
+          '<h3 class="font-bold text-base line-clamp-2">'+escapeHtml(displayTitle)+'</h3>'+
+          '<span class="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 whitespace-nowrap">'+icon+'</span>'+
+        '</div>'+
+        '<p class="text-xs opacity-70 mt-1 line-clamp-2">'+escapeHtml(l.title)+'</p>'+
+        '<p class="text-xl font-extrabold '+(l.sold?'text-gray-400 line-through':'text-orange-600')+' mt-1">₹'+Number(l.price).toLocaleString("en-IN")+'</p>'+
+        '<p class="text-xs opacity-70 mt-1">📍 '+l.district+(l.area?' · '+l.area:'')+' · '+l.condition+'</p>'+
+        '<p class="text-sm opacity-80 mt-2 line-clamp-2">'+escapeHtml(l.desc)+'</p>'+
+        '<div class="mt-3 grid grid-cols-2 gap-2">'+
+          '<a href="tel:+91'+l.phone+'" class="text-center py-2 rounded-lg '+(l.sold?'bg-gray-400':'bg-blue-600 hover:bg-blue-700')+' text-white text-sm font-semibold">📞 Call</a>'+
+          '<a href="https://wa.me/91'+l.phone+'?text='+waText+'" target="_blank" class="text-center py-2 rounded-lg text-white text-sm font-semibold" style="background:'+(l.sold?'#9ca3af':'#25D366')+'">💬 WhatsApp</a>'+
+        '</div>'+
+        '<button onclick="showNumber(this,\''+l.phone+'\')" class="mt-2 w-full py-2 rounded-lg glass text-sm font-semibold">👁️ Show Number</button>'+
+        '<div class="mt-2 grid grid-cols-2 gap-2">'+
+          '<button onclick="markAsSold(\''+l.id+'\')" class="w-full py-2 rounded-lg bg-yellow-100 hover:bg-yellow-200 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300 text-xs font-semibold">'+(l.sold?'↺ Unsold':'✅ Sold')+'</button>'+
+          '<button onclick="deleteListing(\''+l.id+'\')" class="w-full py-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/40 dark:text-red-300 text-xs font-semibold">🗑️ Delete</button>'+
+        '</div>'+
+        '<p class="text-[10px] opacity-60 mt-2">Seller: '+escapeHtml(l.seller)+'</p>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+
+  window._renderedListings = list;
+}
+
+/* ============ SOLD / DELETE ============ */
+function verifySeller(phone){
+  var input = prompt("Apna registered mobile number daalo (jo ad me diya tha):");
+  if(input === null) return false;
+  input = (input || "").trim();
+  if(input !== phone){
+    alert("❌ Ye number is ad ke seller ka nahi hai. Aap ye ad change nahi kar sakte.");
+    return false;
+  }
+  return true;
+}
+
+function markAsSold(id){
+  var all = getListings();
+  var item = all.find(function(l){ return l.id === id; });
+  if(!item) return;
+  if(!verifySeller(item.phone)) return;
+  item.sold = !item.sold;
+  saveListings(all);
+  renderListings();
+  alert(item.sold ? "✅ Ad 'Sold' mark ho gaya. Ye available list me nahi dikhega (filter ke hisaab se)." : "↺ Ad wapas available ho gaya.");
+}
+
+function deleteListing(id){
+  var all = getListings();
+  var item = all.find(function(l){ return l.id === id; });
+  if(!item) return;
+  if(!verifySeller(item.phone)) return;
+  if(!confirm("Pakka delete karna hai? Ye wapas nahi aayega.")) return;
+  all = all.filter(function(l){ return l.id !== id; });
+  saveListings(all);
+  renderListings();
+  alert("🗑️ Ad delete ho gaya.");
+}
+
+function showNumber(btn, num){
+  btn.innerText = "📱 +91 " + num;
+  btn.classList.add("bg-green-100","text-green-800");
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
+
+var galleryList = [], galleryIndex = 0;
+function openGalleryByIdx(idx){
+  var l = (window._renderedListings || [])[idx];
+  if(!l || !l.images || !l.images.length) return;
+  galleryList = l.images;
+  galleryIndex = 0;
+  showGallery();
+}
+function showGallery(){
+  document.getElementById("galleryImg").src = galleryList[galleryIndex];
+  document.getElementById("galleryCount").innerText = (galleryIndex+1) + " / " + galleryList.length;
+  document.getElementById("galleryModal").style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+function closeGallery(){
+  document.getElementById("galleryModal").style.display = "none";
+  document.body.style.overflow = "";
+}
+function galleryNav(dir){
+  galleryIndex = (galleryIndex + dir + galleryList.length) % galleryList.length;
+  showGallery();
+}
+document.addEventListener("keydown", function(e){
+  if(document.getElementById("galleryModal").style.display === "flex"){
+    if(e.key === "Escape") closeGallery();
+    if(e.key === "ArrowLeft") galleryNav(-1);
+    if(e.key === "ArrowRight") galleryNav(1);
+  }
+});
+
+["searchInput","filterDistrict","filterSort","filterBrand"].forEach(function(id){
+  document.addEventListener("input", function(e){ if(e.target.id===id) renderListings(); });
+  document.addEventListener("change", function(e){ if(e.target.id===id) renderListings(); });
+});
+document.addEventListener("change", function(e){
+  if(e.target.id === "filterCategory"){ renderFilterBrands(); renderListings(); }
+  if(e.target.id === "filterSold"){ renderListings(); }
+});
+
+function applyHeroSearch(){
+  var d = document.getElementById("heroDistrict").value;
+  if(d) document.getElementById("filterDistrict").value = d;
+  renderListings();
+  document.getElementById("listings").scrollIntoView({behavior:"smooth"});
+}
+
+document.getElementById("postForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var f = new FormData(e.target);
+  var mainCat = f.get("category");
+  var subCat = f.get("subcategory");
+  var finalCategory = subCat ? subCat : mainCat;
+
+  if(selectedPhotos.length === 0){ alert("Kam se kam 1 photo daalo!"); return; }
+
+  var ad = {
+    id: "u" + Date.now(),
+    title: f.get("title").trim(),
+    brand: (f.get("brand")||"").trim(),
+    model: (f.get("model")||"").trim(),
+    category: finalCategory,
+    mainCategory: mainCat,
+    condition: f.get("condition"),
+    price: Number(f.get("price")),
+    age: (f.get("age")||"").trim(),
+    warranty: (f.get("warranty")||"").trim(),
+    district: f.get("district"),
+    area: (f.get("area")||"").trim(),
+    seller: f.get("seller").trim(),
+    phone: f.get("phone").trim(),
+    desc: f.get("desc").trim(),
+    images: selectedPhotos.slice(),
+    sold: false,
+    createdAt: Date.now()
+  };
+  if(!/^[6-9]\d{9}$/.test(ad.phone)){ alert("Sahi 10 digit mobile number daalo (6-9 se shuru)"); return; }
+
+  var all = getListings();
+  all.unshift(ad);
+  saveListings(all);
+  e.target.reset();
+  selectedPhotos = [];
+  renderPhotoPreview();
+  document.getElementById("brandField").style.display = "none";
+  document.getElementById("modelField").style.display = "none";
+  document.getElementById("subCategoryField").style.display = "none";
+  renderListings();
+  alert("✅ Tumhara ad live ho gaya! " + ad.images.length + " photo ke saath.\n\nApni ad hatane ke liye 'Sold' ya 'Delete' button dabao — phone number se verify karna padega.");
+  document.getElementById("listings").scrollIntoView({behavior:"smooth"});
+});
+
+function initTheme(){
+  var saved = localStorage.getItem(THEME_KEY);
+  if(saved === "dark" || (!saved && window.matchMedia("(prefers-color-scheme: dark)").matches)){
+    document.body.classList.add("dark");
+    document.getElementById("themeBtn").innerText = "☀️";
+  }
+}
+document.getElementById("themeBtn").onclick = function(){
+  document.body.classList.toggle("dark");
+  var isDark = document.body.classList.contains("dark");
+  localStorage.setItem(THEME_KEY, isDark ? "dark":"light");
+  document.getElementById("themeBtn").innerText = isDark ? "☀️":"🌙";
+};
+</script>
+</body>
+</html>
