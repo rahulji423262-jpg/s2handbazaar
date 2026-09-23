@@ -316,7 +316,6 @@
 </div>
 
 <script>
-/* ============ FIREBASE CONFIG ============ */
 const firebaseConfig = {
   apiKey: "AIzaSyB8l0fBUc0kLeEGnivHVrtcpapWJw0i5i0",
   authDomain: "s2handbazaar.firebaseapp.com",
@@ -345,9 +344,8 @@ const BRANDS = {
 const THEME_KEY = "s2hand_theme";
 const MAX_PHOTOS = 6;
 let currentUser = null;
-let selectedPhotos = []; // stores base64 strings directly
+let selectedPhotos = [];
 
-/* ============ AUTH STATE ============ */
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     currentUser = user;
@@ -378,7 +376,6 @@ function logout() {
   auth.signOut().then(() => { alert("Logout ho gaya!"); location.reload(); });
 }
 
-/* ============ AUTH MODAL ============ */
 let authMode = "login";
 function openAuth(mode) {
   authMode = mode;
@@ -450,7 +447,6 @@ function hidePostForm() {
   document.getElementById("postLoginMsg").classList.remove("hidden");
 }
 
-/* ============ PHOTOS (base64 in Firestore) ============ */
 function compressImage(file, maxWidth, quality) {
   return new Promise((resolve) => {
     const reader = new FileReader();
