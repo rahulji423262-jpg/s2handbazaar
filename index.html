@@ -8,7 +8,9 @@
 <meta name="theme-color" content="#FF9933" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23FF9933'/><text x='50' y='68' font-size='55' font-weight='bold' text-anchor='middle' fill='white'>S2</text></svg>" />
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   * { font-family: 'Inter', sans-serif; }
@@ -231,14 +233,15 @@
         <textarea required name="desc" rows="4" placeholder="Condition, kitna purana..."></textarea>
       </div>
       <div class="md:col-span-2">
-        <label>📷 Photos (max 8) *</label>
+        <label>📷 Photos (max 6) *</label>
         <div class="upload-box" onclick="document.getElementById('photoInput').click()">
           <div class="text-4xl mb-2">📸</div>
           <p class="font-semibold text-sm">Click karo photo chunne ke liye</p>
+          <p class="text-xs opacity-60 mt-1">Max 6 photos · Auto-compress honge</p>
         </div>
         <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="onPhotosSelected(event)" />
         <div id="photoPreview" class="grid grid-cols-4 gap-2 mt-3"></div>
-        <p id="photoCount" class="text-xs opacity-70 mt-2">0 / 8 photos selected</p>
+        <p id="photoCount" class="text-xs opacity-70 mt-2">0 / 6 photos selected</p>
       </div>
       <button type="submit" id="publishBtn" class="md:col-span-2 btn-primary py-3 rounded-xl font-bold text-lg">🚀 Publish Ad</button>
     </form>
@@ -313,11 +316,19 @@
 </div>
 
 <script>
-/* ============ SUPABASE CONFIG (already filled) ============ */
-const SUPABASE_URL = "https://kwgfagktgpbwkbwxxnmvy.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3Z2ZhZ2t0Z3Bid2tid3h4bm12eSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzYxNzYxMTk3LCJleHAiOjIwNzc0MzY3OTd9.Y9pik-rEyonwaDemAqFdH6SjoKnHlQ5Ar-iyDu1BntU";
+/* ============ FIREBASE CONFIG ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyB8l0fBUc0kLeEGnivHVrtcpapWJw0i5i0",
+  authDomain: "s2handbazaar.firebaseapp.com",
+  projectId: "s2handbazaar",
+  storageBucket: "s2handbazaar.firebasestorage.app",
+  messagingSenderId: "29390007011",
+  appId: "1:29390007011:web:cc2725b6665048a50733d6"
+};
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 const BRANDS = {
   mobile: ["Apple","Samsung","Xiaomi / Redmi","Realme","Vivo","Oppo","OnePlus","Nothing","Motorola","Google Pixel","Honor","Infinix","Tecno","iQOO","Poco","Asus","Nokia","Lava","Micromax","Karbonn","Sony","LG","HTC","Jio","Other"],
@@ -332,50 +343,42 @@ const BRANDS = {
 };
 
 const THEME_KEY = "s2hand_theme";
-const MAX_PHOTOS = 8;
+const MAX_PHOTOS = 6;
 let currentUser = null;
-let currentProfile = null;
-let selectedPhotos = [];
+let selectedPhotos = []; // stores base64 strings directly
 
-sb.auth.onAuthStateChange(async (event, session) => {
-  if (session && session.user) {
-    currentUser = session.user;
-    await loadProfile();
+/* ============ AUTH STATE ============ */
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    currentUser = user;
     updateUserBox();
     showPostForm();
     loadMyListings();
     document.getElementById("dashboard").classList.remove("hidden");
   } else {
     currentUser = null;
-    currentProfile = null;
     updateUserBox();
     hidePostForm();
     document.getElementById("dashboard").classList.add("hidden");
   }
+  loadListings();
 });
-
-async function loadProfile() {
-  if (!currentUser) return;
-  const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
-  currentProfile = data || null;
-}
 
 function updateUserBox() {
   const box = document.getElementById("userBox");
   if (currentUser) {
-    const name = (currentProfile && currentProfile.full_name) || currentUser.email.split("@")[0];
+    const name = currentUser.displayName || currentUser.email.split("@")[0];
     box.innerHTML = '<div class="flex items-center gap-2"><span class="hidden md:inline text-sm font-semibold">' + escapeHtml(name) + '</span><button onclick="logout()" class="px-3 py-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 text-sm font-semibold">Logout</button></div>';
   } else {
     box.innerHTML = '<button onclick="openAuth(\'login\')" class="btn-primary px-4 py-2 rounded-lg text-sm font-semibold">Login / Sign Up</button>';
   }
 }
 
-async function logout() {
-  await sb.auth.signOut();
-  alert("Logout ho gaya!");
-  location.reload();
+function logout() {
+  auth.signOut().then(() => { alert("Logout ho gaya!"); location.reload(); });
 }
 
+/* ============ AUTH MODAL ============ */
 let authMode = "login";
 function openAuth(mode) {
   authMode = mode;
@@ -420,16 +423,13 @@ document.getElementById("authForm").addEventListener("submit", async (e) => {
     if (authMode === "signup") {
       const full_name = (f.get("full_name") || "").trim();
       const phone = (f.get("phone") || "").trim();
-      const { data, error } = await sb.auth.signUp({ email, password });
-      if (error) throw error;
-      if (data.user) {
-        await sb.from("profiles").insert({ id: data.user.id, full_name, phone });
-      }
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      if (full_name) await cred.user.updateProfile({ displayName: full_name });
+      await db.collection("profiles").doc(cred.user.uid).set({ full_name, phone, email });
       alert("✅ Account ban gaya! Ab login karo.");
       authMode = "login"; updateAuthUI();
     } else {
-      const { error } = await sb.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      await auth.signInWithEmailAndPassword(email, password);
       closeAuth();
       alert("✅ Login ho gaya!");
     }
@@ -450,6 +450,7 @@ function hidePostForm() {
   document.getElementById("postLoginMsg").classList.remove("hidden");
 }
 
+/* ============ PHOTOS (base64 in Firestore) ============ */
 function compressImage(file, maxWidth, quality) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -461,7 +462,7 @@ function compressImage(file, maxWidth, quality) {
         const canvas = document.createElement("canvas");
         canvas.width = w; canvas.height = h;
         canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-        canvas.toBlob((blob) => resolve(blob), "image/jpeg", quality);
+        resolve(canvas.toDataURL("image/jpeg", quality));
       };
       img.src = e.target.result;
     };
@@ -472,20 +473,23 @@ function compressImage(file, maxWidth, quality) {
 async function onPhotosSelected(e) {
   const files = Array.from(e.target.files);
   const remaining = MAX_PHOTOS - selectedPhotos.length;
-  if (remaining <= 0) { alert("Max 8 photos."); e.target.value = ""; return; }
-  if (files.length > remaining) { alert("Sirf " + remaining + " aur."); files = files.slice(0, remaining); }
+  if (remaining <= 0) { alert("Max 6 photos."); e.target.value = ""; return; }
+  if (files.length > remaining) { alert("Sirf " + remaining + " aur photo add kar sakte ho."); files = files.slice(0, remaining); }
   for (const file of files) {
-    try { const blob = await compressImage(file, 900, 0.75); selectedPhotos.push(blob); }
-    catch (err) { console.log("skip:", err); }
+    try {
+      const base64 = await compressImage(file, 600, 0.5);
+      selectedPhotos.push(base64);
+    } catch (err) { console.log("skip:", err); }
   }
-  e.target.value = ""; renderPhotoPreview();
+  e.target.value = "";
+  renderPhotoPreview();
 }
+
 function renderPhotoPreview() {
   const preview = document.getElementById("photoPreview");
   preview.innerHTML = "";
-  selectedPhotos.forEach((blob, idx) => {
-    const url = URL.createObjectURL(blob);
-    preview.innerHTML += '<div class="photo-thumb"><img src="' + url + '"><div class="remove" onclick="removePhoto(' + idx + ')">✕</div></div>';
+  selectedPhotos.forEach((base64, idx) => {
+    preview.innerHTML += '<div class="photo-thumb"><img src="' + base64 + '"><div class="remove" onclick="removePhoto(' + idx + ')">✕</div></div>';
   });
   document.getElementById("photoCount").innerText = selectedPhotos.length + " / " + MAX_PHOTOS + " photos selected";
 }
@@ -563,32 +567,37 @@ async function loadListings() {
   grid.innerHTML = "";
   empty.classList.add("hidden");
 
-  const keyword = (document.getElementById("searchInput").value || "").trim();
+  const keyword = (document.getElementById("searchInput").value || "").trim().toLowerCase();
   const district = document.getElementById("filterDistrict").value;
   const category = document.getElementById("filterCategory").value;
   const sort = document.getElementById("filterSort").value;
   const soldFilter = document.getElementById("filterSold").value;
 
-  let query = sb.from("listings").select("*");
-  if (district) query = query.eq("district", district);
-  if (category) query = query.eq("category", category);
-  if (soldFilter === "hide") query = query.eq("sold", false);
-  if (keyword) query = query.or("title.ilike.%" + keyword + "%,description.ilike.%" + keyword + "%");
-  if (sort === "low") query = query.order("price", { ascending: true });
-  else if (sort === "high") query = query.order("price", { ascending: false });
-  else query = query.order("created_at", { ascending: false });
-  query = query.limit(60);
+  try {
+    let query = db.collection("listings");
+    if (district) query = query.where("district", "==", district);
+    if (category) query = query.where("category", "==", category);
+    if (soldFilter === "hide") query = query.where("sold", "==", false);
 
-  const { data, error } = await query;
-  loading.style.display = "none";
+    const snapshot = await query.get();
+    let list = [];
+    snapshot.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
 
-  if (error) {
+    if (keyword) {
+      list = list.filter(l => (l.title + " " + (l.description || "") + " " + (l.brand || "")).toLowerCase().includes(keyword));
+    }
+    if (sort === "low") list.sort((a, b) => a.price - b.price);
+    else if (sort === "high") list.sort((a, b) => b.price - a.price);
+    else list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    loading.style.display = "none";
+    if (list.length === 0) { empty.classList.remove("hidden"); return; }
+    renderListingCards(grid, list.slice(0, 60));
+  } catch (error) {
     console.error(error);
+    loading.style.display = "none";
     grid.innerHTML = '<p class="col-span-full text-center text-red-500 py-8">Error: ' + error.message + '</p>';
-    return;
   }
-  if (!data || data.length === 0) { empty.classList.remove("hidden"); return; }
-  renderListingCards(grid, data);
 }
 
 function renderListingCards(grid, list) {
@@ -627,30 +636,40 @@ function escapeHtml(s) { return String(s || "").replace(/[&<>"']/g, c => ({ "&":
 
 async function loadMyListings() {
   if (!currentUser) return;
-  const { data, error } = await sb.from("listings").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false });
   const grid = document.getElementById("myListingsGrid");
   const empty = document.getElementById("myEmptyMsg");
-  if (!data || data.length === 0) { grid.innerHTML = ""; empty.classList.remove("hidden"); return; }
-  empty.classList.add("hidden");
-  const ICONS = { mobile:"📱", laptop:"💻", tv:"📺", ac:"❄️", fan:"🌀", "other-electronic":"⚡", electronic:"🔌", bike:"🏍️", books:"📚", furniture:"🛋️" };
-  grid.innerHTML = data.map(l => {
-    const icon = ICONS[l.category] || "📦";
-    const imgs = l.images && l.images.length ? l.images : [];
-    const firstImg = imgs.length ? '<img src="' + imgs[0] + '" class="w-full h-full object-cover">' : '<div class="w-full h-full flex items-center justify-center text-5xl">' + icon + '</div>';
-    return '<div class="card glass rounded-2xl overflow-hidden flex flex-col"><div class="aspect-[4/3] bg-gray-200 overflow-hidden">' + firstImg + '</div><div class="p-4 flex-1 flex flex-col"><h3 class="font-bold text-base line-clamp-2">' + escapeHtml(l.title) + '</h3><p class="text-xl font-extrabold ' + (l.sold ? 'text-gray-400 line-through' : 'text-orange-600') + ' mt-1">₹' + Number(l.price).toLocaleString("en-IN") + '</p><p class="text-xs opacity-70 mt-1">📍 ' + l.district + '</p><div class="mt-3 grid grid-cols-2 gap-2"><button onclick="toggleSold(\'' + l.id + '\',' + l.sold + ')" class="py-2 rounded-lg bg-yellow-100 text-yellow-800 text-xs font-semibold">' + (l.sold ? '↺ Unsold' : '✅ Sold') + '</button><button onclick="deleteMyListing(\'' + l.id + '\')" class="py-2 rounded-lg bg-red-100 text-red-700 text-xs font-semibold">🗑️ Delete</button></div></div></div>';
-  }).join("");
+  try {
+    const snapshot = await db.collection("listings").where("user_id", "==", currentUser.uid).get();
+    let data = [];
+    snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+    data.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    if (data.length === 0) { grid.innerHTML = ""; empty.classList.remove("hidden"); return; }
+    empty.classList.add("hidden");
+    const ICONS = { mobile:"📱", laptop:"💻", tv:"📺", ac:"❄️", fan:"🌀", "other-electronic":"⚡", electronic:"🔌", bike:"🏍️", books:"📚", furniture:"🛋️" };
+    grid.innerHTML = data.map(l => {
+      const icon = ICONS[l.category] || "📦";
+      const imgs = l.images && l.images.length ? l.images : [];
+      const firstImg = imgs.length ? '<img src="' + imgs[0] + '" class="w-full h-full object-cover">' : '<div class="w-full h-full flex items-center justify-center text-5xl">' + icon + '</div>';
+      return '<div class="card glass rounded-2xl overflow-hidden flex flex-col"><div class="aspect-[4/3] bg-gray-200 overflow-hidden">' + firstImg + '</div><div class="p-4 flex-1 flex flex-col"><h3 class="font-bold text-base line-clamp-2">' + escapeHtml(l.title) + '</h3><p class="text-xl font-extrabold ' + (l.sold ? 'text-gray-400 line-through' : 'text-orange-600') + ' mt-1">₹' + Number(l.price).toLocaleString("en-IN") + '</p><p class="text-xs opacity-70 mt-1">📍 ' + l.district + '</p><div class="mt-3 grid grid-cols-2 gap-2"><button onclick="toggleSold(\'' + l.id + '\',' + l.sold + ')" class="py-2 rounded-lg bg-yellow-100 text-yellow-800 text-xs font-semibold">' + (l.sold ? '↺ Unsold' : '✅ Sold') + '</button><button onclick="deleteMyListing(\'' + l.id + '\')" class="py-2 rounded-lg bg-red-100 text-red-700 text-xs font-semibold">🗑️ Delete</button></div></div></div>';
+    }).join("");
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 async function toggleSold(id, currentSold) {
-  const { error } = await sb.from("listings").update({ sold: !currentSold }).eq("id", id);
-  if (error) { alert("Error: " + error.message); return; }
-  loadMyListings(); loadListings();
+  try {
+    await db.collection("listings").doc(id).update({ sold: !currentSold });
+    loadMyListings(); loadListings();
+  } catch (error) { alert("Error: " + error.message); }
 }
 async function deleteMyListing(id) {
   if (!confirm("Pakka delete karna hai?")) return;
-  const { error } = await sb.from("listings").delete().eq("id", id);
-  if (error) { alert("Error: " + error.message); return; }
-  loadMyListings(); loadListings();
+  try {
+    await db.collection("listings").doc(id).delete();
+    loadMyListings(); loadListings();
+  } catch (error) { alert("Error: " + error.message); }
 }
 
 let galleryList = [], galleryIndex = 0;
@@ -692,26 +711,15 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
   const finalCategory = subCat ? subCat : mainCat;
   const btn = document.getElementById("publishBtn");
   btn.disabled = true;
+  btn.innerText = "📤 Ad save ho raha hai...";
 
   try {
-    btn.innerText = "📷 Photos upload...";
-    const imageUrls = [];
-    for (let i = 0; i < selectedPhotos.length; i++) {
-      const file = selectedPhotos[i];
-      const fileName = currentUser.id + "/" + Date.now() + "_" + i + ".jpg";
-      const { error: upErr } = await sb.storage.from("listings-images").upload(fileName, file, { contentType: "image/jpeg" });
-      if (upErr) throw upErr;
-      const { data: urlData } = sb.storage.from("listings-images").getPublicUrl(fileName);
-      imageUrls.push(urlData.publicUrl);
-    }
-
-    btn.innerText = "📤 Ad save...";
     const ad = {
-      user_id: currentUser.id,
+      user_id: currentUser.uid,
       title: f.get("title").trim(),
       description: f.get("desc").trim(),
       category: finalCategory,
-      subcategory: subCat || null,
+      subcategory: subCat || "",
       brand: (f.get("brand") || "").trim(),
       model: (f.get("model") || "").trim(),
       condition: f.get("condition"),
@@ -722,12 +730,12 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
       area: (f.get("area") || "").trim(),
       seller_name: f.get("seller").trim(),
       phone: f.get("phone").trim(),
-      images: imageUrls,
-      sold: false
+      images: selectedPhotos.slice(),
+      sold: false,
+      createdAt: Date.now()
     };
 
-    const { error } = await sb.from("listings").insert(ad);
-    if (error) throw error;
+    await db.collection("listings").add(ad);
 
     e.target.reset();
     selectedPhotos = []; renderPhotoPreview();
@@ -744,12 +752,11 @@ document.getElementById("postForm").addEventListener("submit", async (e) => {
   btn.innerText = "🚀 Publish Ad";
 });
 
-["searchInput", "filterDistrict", "filterSort", "filterSold"].forEach(id => {
+["searchInput", "filterDistrict", "filterSort", "filterSold", "filterCategory"].forEach(id => {
   const el = document.getElementById(id);
   el.addEventListener("input", loadListings);
   el.addEventListener("change", loadListings);
 });
-document.getElementById("filterCategory").addEventListener("change", loadListings);
 
 function applyHeroSearch() {
   const d = document.getElementById("heroDistrict").value;
@@ -774,7 +781,6 @@ document.getElementById("themeBtn").onclick = () => {
 
 document.addEventListener("DOMContentLoaded", () => {
   renderCategories();
-  loadListings();
   initTheme();
   hidePostForm();
 });
