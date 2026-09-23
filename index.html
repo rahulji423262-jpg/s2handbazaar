@@ -313,8 +313,9 @@
 </div>
 
 <script>
+/* ============ SUPABASE CONFIG (already filled) ============ */
 const SUPABASE_URL = "https://kwgfagktgpbwkbwxxnmvy.supabase.co";
-const SUPABASE_ANON_KEY=''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3Z2ZhcWt0Z3Bid2tid3hubXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3NTE3NDgsImV4cCI6MjEwNTMyNzc0OH0.Y9pik-rEyonwaDemAqFdH6SjoKnHlQ5Ar-iyDu1BntU'';
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt3Z2ZhZ2t0Z3Bid2tid3h4bm12eSIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzYxNzYxMTk3LCJleHAiOjIwNzc0MzY3OTd9.Y9pik-rEyonwaDemAqFdH6SjoKnHlQ5Ar-iyDu1BntU";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -582,6 +583,7 @@ async function loadListings() {
   loading.style.display = "none";
 
   if (error) {
+    console.error(error);
     grid.innerHTML = '<p class="col-span-full text-center text-red-500 py-8">Error: ' + error.message + '</p>';
     return;
   }
